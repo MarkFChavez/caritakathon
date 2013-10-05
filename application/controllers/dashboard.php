@@ -11,7 +11,112 @@
 				redirect('admin');
 			}	
 	
+		}	
+
+		public function files()
+		{
+			$this->load->model('file_model');
+
+			$data['files'] = $this->file_model->get_all();
+
+			$data['title'] = "Sarilaya | Files";
+
+			$data['scripts'] = array('jquery.min','bootstrap.min','nav');
+					
+			$data['styles'] = array('bootstrap.min','bootstrap-responsive.min','caritakathon');			
+
+			$this->load->view('filespage',$data);			
 		}		
+		
+		public function delete_file()
+		{
+			$this->load->model('file_model');
+
+			$this->load->helper("file");
+
+			$image = $this->file_model->get_id(end($this->uri->segments));
+
+			$result = $this->file_model->delete(end($this->uri->segments));
+
+			if($result)
+			{
+				unlink(FCPATH . '/img/files/'.$image[0]->file_extension);	
+
+				redirect('dashboard/files');				
+			}	
+			else
+			{
+				//you can calter here the message that will be showed 
+				show_error('Database Error'.'<a style = "margin-left:20px" href = "'.base_url().'dashboard/articles/1'.'">Go back to Admin Homepage</a>'); 					
+			}				
+
+		}
+		
+		public function add_files()
+		{
+			$data['types'] = "video";
+
+			$data['title'] = "Sarilaya | New Files";
+
+			$data['scripts'] = array('jquery.min','bootstrap.min','nav');
+					
+			$data['styles'] = array('bootstrap.min','bootstrap-responsive.min','caritakathon');			
+
+			$this->load->view('addfile',$data);
+		}
+		
+		public function validate_files()
+		{
+			$this->load->model('file_model');
+
+			if (isset($_POST['submit']))
+			{
+					$config['upload_path'] = './img/files/'; /* NB! create this dir! */
+					$config['allowed_types'] = 'mp4|psd|xls|doc|docx|xlsx';
+					$config['overwrite']  = TRUE;
+					/* Load the upload library */
+					$this->load->library('upload', $config);
+
+					for($i = 1; $i < 5; $i++)
+					{
+						/* Handle the file upload */
+						$upload = $this->upload->do_upload('file'.$i);
+						/* File failed to upload - continue */
+						if($upload === FALSE) continue;
+						/* Get the data about the file */
+						$data = $this->upload->data();
+				 
+						$text = $data['file_name'];
+
+						if (strpos($text,'mp4') !== false) {
+						   $test = "video";
+						}
+						else
+						{
+							$test = "file";
+						}
+
+						$uploadedFiles[$i] = $data;
+						/* If the file is an image - create a thumbnail */
+							
+						$datas = array(
+										'file_extension'	=> $data['file_name'],
+										'file_category'		=> $test
+									);
+						$result = $this->file_model->insert($datas);			
+					}				
+					redirect('dashboard/files');
+			}
+			else
+			{
+				redirect('dashboard/logout');
+			}						
+		}
+
+		public function news()
+		{
+			echo "a";
+		}
 
 		public function articles()
 		{
@@ -193,6 +298,35 @@
 		
 		}
 
+		public function news_and_updates($action, $id) {
+			$this->load->model('news_model');
+
+			if(!isset($action)) {
+				$data['title'] = 'Sarilaya | News & Updates';
+				$data['scripts'] = array('jquery.min', 'bootstrap.min','nav');
+				$data['styles'] = array('bootstrap.min', 'bootstrap-responsive.min', 'caritakathon');
+				$data['news'] = $this->news_model->get_all();
+				$this->load->view('newsandupdates', $data);
+			} else {
+				//render the edit form
+				$data['title'] = 'Sarilaya | Edit News';
+				$data['scripts'] = array('jquery.min', 'bootstrap.min', 'nav');
+				$data['styles'] = array('bootstrap.min', 'bootstrap-responsive.min', 'caritakathon');
+				$data['news'] = $this->news_model->get_news($id);
+				$this->load->view('editnewsandupdates', $data);
+			}
+		}
+
+		public function delete_news() {
+			$id = end($this->uri->segments);
+			$this->load->model('news_model');
+			if($result = $this->news_model->delete_news($id)) {
+				redirect("dashboard/news_and_updates");
+			} else {
+				show_error('Database error'.'<a style="margin-left:20px" href="'.base_url().'dashboard/articles/1'.'">Go back to admin dashboard</a>');
+			}
+		}
+
 		public function validate_password()
 		{
 			$this->load->library('form_validation');
@@ -212,11 +346,25 @@
 			}
 			else
 			{
-				echo "a";
-			}	
+				$this->load->model('user_model');
+
+				$data = array('user_password'=>$this->input->post('new_pass'));
+
+				$result = $this->user_model->update($this->session->userdata('username'),$data);
+				
+				if($result)
+				{
+					echo "1";
+				}
+				else
+				{
+					//you can calter here the message that will be showed 
+					show_error('Database Error'.'<a style = "margin-left:20px" href = "'.base_url().'dashboard'.'">Go back to Admin Dashboard</a>'); 																		
+				}				
+			}
 		}
 
-		public function validate_new_title()
+		public function validate_new_title() 
 		{
 			//echo $this->input->post('id');
 			//echo $this->input->post('title');
@@ -564,6 +712,69 @@
 					}
 				}
 			}		
+		}
+
+		public function validate_news()
+		{
+			$this->load->model('news_model');
+
+			$title = $this->input->post('titles');
+
+			$content = $this->input->post('contents');
+			
+			$data = array(
+				'news_title'		=> strip_tags(htmlentities($title)),
+				'news_content'	=> strip_tags(htmlentities($content))
+			);	
+
+			$result = $this->news_model->update(end($this->uri->segments),$data);
+
+			if($result)
+			{
+				redirect('dashboard/news_and_updates');
+			}
+			else
+			{
+				//you can calter here the message that will be showed 
+				show_error('Database Error'.'<a style = "margin-left:20px" href = "'.base_url().'dashboard'.'">Go back to Admin Dashboard</a>'); 																		
+			}	
+
+		}
+
+		public function new_news() {
+			$data['title'] = "Sarilaya | New Article";
+
+			$data['scripts'] = array('jquery.min','bootstrap.min','addarticle','nav');
+				
+			$data['styles'] = array('bootstrap.min','bootstrap-responsive.min','caritakathon');			
+
+			$this->load->view('addnews',$data);
+		}
+
+		public function validate_new_news()
+		{
+			$this->load->model('news_model');
+
+			$title = $this->input->post('title');
+
+			$content = $this->input->post('content');
+		
+			$data = array(
+				'news_title'		=> strip_tags(htmlentities($title)),
+				'news_content'	=> strip_tags(htmlentities($content)),
+			);	
+
+			$result = $this->news_model->insert($data);
+
+			if($result)
+			{
+				echo "1";
+			}
+			else
+			{
+				//you can calter here the message that will be showed 
+				show_error('Database Error'.'<a style = "margin-left:20px" href = "'.base_url().'dashboard'.'">Go back to Admin Dashboard</a>'); 																		
+			}				
 		}
 
 		public function logout()

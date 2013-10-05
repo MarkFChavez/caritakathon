@@ -27,13 +27,13 @@
 
 		<div class="container">
 
-			<div class="row">
+			<div class="row" style = "margin-top:5%">
 				<div class="span12">
-					<h1> Sarilaya <small> simple description </small> </h1>		
+					<img src = "<?php echo base_url();?>img/logo.png" style = "width:185px; height:107px"/>
 				</div>
 			</div>
 
-			<div id="form-wrapper">
+			<div>
 				<?php 	$attribute = array('class'=>'form-signin');
 						echo form_open('admin/check_login',$attribute);?>
 				<!--<form action="" class="form-signin">-->

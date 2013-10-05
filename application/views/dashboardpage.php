@@ -80,6 +80,8 @@
 		  			<ul class="nav pull-right">
 				      <li class="active"><a href="<?php echo base_url();?>dashboard/articles/1">Manage Articles</a></li>
 				      <li ><a href="<?php echo base_url();?>dashboard/gallery">Manage Gallery</a></li>
+				      <li ><a href="<?php echo base_url();?>dashboard/files">Manage Files</a></li>
+				       <li><a href="<?php echo base_url(); ?>dashboard/news_and_updates">News & Updates</a></li>
 				      <li class="dropdown">
 				      	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
 							<?php echo $this->session->userdata('username'); ?><b class="caret"></b>
@@ -100,7 +102,7 @@
 			<div class="row">
 				<div class="span12">
 					<h1>Articles <small> <a href = "<?php echo base_url();?>dashboard/add_article" class = "visible-desktop">add some here</a>
-					<img src = "<?php echo base_url();?>img/add-new.png" class = "visible-phone" />	
+					 <a href = "<?php echo base_url();?>dashboard/add_article"><img src = "<?php echo base_url();?>img/add-new.png" class = "visible-phone" />	</a>
 					</small></h1>
 					<hr />
 				</div>

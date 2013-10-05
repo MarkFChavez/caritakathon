@@ -14,6 +14,13 @@
 			return $this->db->count_all('article');
 		}
 
+		public function get_three()
+		{
+			$query = $this->db->get('article',3,0);
+		
+			return $query->result();
+		}
+
 		public function get_given($offset)
 		{
 			$query = "SELECT * FROM `article`

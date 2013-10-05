@@ -3,6 +3,10 @@
 	class main extends CI_Controller{
 		public function index()
 		{
-			echo "a";
+			$this->load->model('article_model');
+
+			$data['articles'] = $this->article_model->get_three();
+
+			$this->load->view('main/mainview',$data);	
 		}
 	}	
